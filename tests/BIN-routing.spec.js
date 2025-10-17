@@ -15,7 +15,7 @@ test.describe("BIN Routing", () => {
     await signInToBI(allPages);
   });
 
-  test("Verify that BIN Routing page export CSV report successfully", async () => {
+  test.only("Verify that BIN Routing page export CSV report successfully", async () => {
     let bankName = "";
     let approvalLift = "";
     let revenueImpact = "";
