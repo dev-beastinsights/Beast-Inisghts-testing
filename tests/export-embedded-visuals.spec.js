@@ -4,7 +4,10 @@ import AllPages from "../pages/AllPages.js";
 import dotenv from "dotenv";
 import { verifyFormatOfDownloadFiles } from "../utils/download.js";
 import { signInToBI } from "../utils/test-setup.js";
-dotenv.config();
+
+if (!process.env.CI) {
+  dotenv.config();
+}
 
 test.describe("Export Embedded Visuals", () => {
   /** @type {AllPages} */

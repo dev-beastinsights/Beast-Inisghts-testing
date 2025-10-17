@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:latest
     env:
+      CI: true
       USERNAME: ${{ secrets.USERNAME }}
       USERNAME1: ${{ secrets.USERNAME1 }}
       PASSWORD: ${{ secrets.PASSWORD }}
@@ -30,7 +31,25 @@ jobs:
           npm install
           npx playwright install chromium
 
+      - name: Verify environment variables
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          USERNAME1: ${{ secrets.USERNAME1 }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          echo "Checking if environment variables are set..."
+          if [ -z "$USERNAME" ]; then echo "USERNAME is not set"; else echo "USERNAME is set"; fi
+          if [ -z "$PASSWORD" ]; then echo "PASSWORD is not set"; else echo "PASSWORD is set"; fi
+          if [ -z "$USERNAME1" ]; then echo "USERNAME1 is not set"; else echo "USERNAME1 is set"; fi
+          if [ -z "$GMAIL_APP_PASSWORD" ]; then echo "GMAIL_APP_PASSWORD is not set"; else echo "GMAIL_APP_PASSWORD is set"; fi
+
       - name: Playwright Tests
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          USERNAME1: ${{ secrets.USERNAME1 }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
           npx playwright test
 

@@ -20,7 +20,10 @@ import {
       getPreviousMonthNumber,
       getPreviousMonthShortName,
  } from "../utils/filter.js";
-dotenv.config();
+
+if (!process.env.CI) {
+  dotenv.config();
+}
 
 test.describe("", () => {
   /** @type {AllPages} */

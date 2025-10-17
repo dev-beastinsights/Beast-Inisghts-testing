@@ -4,7 +4,9 @@ import AllPages from "../pages/AllPages.js";
 import dotenv from "dotenv";
 import { waitForEmail, searchExistingEmails } from "../utils/receiveMail.js";
 
-dotenv.config();
+if (!process.env.CI) {
+  dotenv.config();
+}
 
 test.describe("Forgot Password", () => {
   /** @type {AllPages} */

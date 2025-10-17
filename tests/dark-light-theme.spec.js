@@ -3,7 +3,10 @@ import { test } from '@playwright/test';
 import AllPages from '../pages/AllPages.js';
 import dotenv from 'dotenv';
 import { signInToBI } from "../utils/test-setup.js";
-dotenv.config();
+
+if (!process.env.CI) {
+  dotenv.config();
+}
 
 test.describe('Dark light theme', () => {
   /** @type {AllPages} */

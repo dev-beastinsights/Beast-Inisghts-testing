@@ -72,6 +72,8 @@ class LoginPage extends BasePage {
 
   async loginToBeastInsights(usernameOrEmail, password) {
     await this.expectSignInModal();
+    console.log("usernameOrEmail ---------", usernameOrEmail);
+    console.log("password -----", password);
     await this.getUserNameOrEmailInput().pressSequentially(usernameOrEmail, {
       delay: 100,
     });
