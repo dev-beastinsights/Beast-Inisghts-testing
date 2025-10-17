@@ -1,0 +1,43 @@
+name: Execute BI Tests
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  USERNAME: ${{ secrets.USERNAME }}
+  USERNAME1: ${{ secrets.USERNAME1 }}
+  PASSWORD: ${{ secrets.PASSWORD }}
+  GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+
+jobs:
+  execute-bi-tests:
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npx playwright install chromium
+
+      - name: Playwright Tests
+        run: |
+          npx playwright test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
