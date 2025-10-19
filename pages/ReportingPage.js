@@ -159,7 +159,8 @@ class ReportingPage extends BasePage {
     await this.getNthGroup(n).click();
     await this.page.keyboard.press("Control+A").catch(() => {});
     await this.page.keyboard.press("Backspace");
-    await this.page.keyboard.type(newGroup, { delay: 50 });
+    await this.page.waitForTimeout(500);
+    await this.page.keyboard.type(newGroup, { delay: 100 });
     await this.page.keyboard.press("Enter");
   }
 

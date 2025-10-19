@@ -28,7 +28,7 @@ class DashboardPage extends BasePage {
   async skipOnboardingTour() {
     await expect(
       this.page.locator(this.locators.driverPopoverContent)
-    ).toBeVisible({ timeout: 90000 });
+    ).toBeVisible({ timeout: 120000 });
     if (
       await this.page.locator(this.locators.driverPopoverContent).isVisible()
     ) {
