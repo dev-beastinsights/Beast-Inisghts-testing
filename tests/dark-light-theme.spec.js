@@ -4,9 +4,7 @@ import AllPages from '../pages/AllPages.js';
 import dotenv from 'dotenv';
 import { signInToBI } from "../utils/test-setup.js";
 
-if (!process.env.CI) {
-  dotenv.config();
-}
+dotenv.config();
 
 test.describe('Dark light theme', () => {
   /** @type {AllPages} */

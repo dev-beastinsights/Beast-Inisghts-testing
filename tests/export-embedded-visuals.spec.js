@@ -5,9 +5,7 @@ import dotenv from "dotenv";
 import { verifyFormatOfDownloadFiles } from "../utils/download.js";
 import { signInToBI } from "../utils/test-setup.js";
 
-if (!process.env.CI) {
-  dotenv.config();
-}
+dotenv.config();
 
 test.describe("Export Embedded Visuals", () => {
   /** @type {AllPages} */

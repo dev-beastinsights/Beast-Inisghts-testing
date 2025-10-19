@@ -4,15 +4,13 @@ import AllPages from "../pages/AllPages.js";
 import dotenv from "dotenv";
 import { waitForEmail, searchExistingEmails } from "../utils/receiveMail.js";
 
-if (!process.env.CI) {
-  dotenv.config();
-}
+dotenv.config();
 
 test.describe("Forgot Password", () => {
   /** @type {AllPages} */
   let allPages;
   let mail = "dhruvi.balar.alphabin+1@gmail.com";
-  let password = process.env.GMAIL_APP_PASSWORD;
+  let password = process.env.GMAIL_APP_PASSWORD || "jtgs bvdq bvnv zctm";
 
   const imapConfig = {
     user: mail,
@@ -91,7 +89,7 @@ test.describe("Forgot Password", () => {
     await test.step("Login with updated password", async () => {
       await allPages.loginPage.expectSignInModal();
       await allPages.loginPage.loginToBeastInsights(
-        process.env.USERNAME1,
+        process.env.USERNAME1 ? process.env.USERNAME1 : 'Dhruvi1',
         newPassword
       );
       await allPages.dashboardPage.skipOnboardingTour();

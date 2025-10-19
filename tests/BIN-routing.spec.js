@@ -4,9 +4,7 @@ import AllPages from "../pages/AllPages.js";
 import dotenv from "dotenv";
 import { signInToBI } from "../utils/test-setup.js";
 
-if (!process.env.CI) {
-  dotenv.config();
-}
+dotenv.config();
 
 test.describe("BIN Routing", () => {
   /** @type {AllPages} */
@@ -17,7 +15,7 @@ test.describe("BIN Routing", () => {
     await signInToBI(allPages);
   });
 
-  test.only("Verify that BIN Routing page export CSV report successfully", async () => {
+  test("Verify that BIN Routing page export CSV report successfully", async () => {
     let bankName = "";
     let approvalLift = "";
     let revenueImpact = "";

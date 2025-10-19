@@ -21,9 +21,7 @@ import {
       getPreviousMonthShortName,
  } from "../utils/filter.js";
 
-if (!process.env.CI) {
-  dotenv.config();
-}
+dotenv.config();
 
 test.describe("", () => {
   /** @type {AllPages} */

@@ -5,8 +5,8 @@ import AllPages from "../pages/AllPages.js";
 export async function signInToBI(allPages) {
     await allPages.loginPage.navigateToLoginPage();
     await allPages.loginPage.loginToBeastInsights(
-        process.env.USERNAME,
-        process.env.PASSWORD
+        process.env.USERNAME || 'Dhruvi',
+        process.env.PASSWORD || '12qw!@QWBI'
     );
     await allPages.dashboardPage.skipOnboardingTour();
 }
