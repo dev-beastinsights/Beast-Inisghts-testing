@@ -51,6 +51,9 @@ class ResetPasswordPage extends BasePage {
     await expect(this.page.getByText(this.locators.successToast)).toBeVisible({
       timeout: 60000,
     });
+    await expect(this.page.getByText(this.locators.successToast)).toBeHidden({
+      timeout: 60000,
+    });
   }
 }
 

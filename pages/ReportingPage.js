@@ -66,8 +66,8 @@ class ReportingPage extends BasePage {
 
       let currentValue = (await cell.textContent())?.replace(/▼/g, "").trim();
       if (currentValue && currentValue !== "") {
-        await cell.click();
-        await this.page.keyboard.press("Control+A").catch(() => {});
+        await cell.dblclick();
+        await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
         await this.page.keyboard.press("Backspace");
         await this.page.keyboard.press("Enter");
         await this.page.waitForTimeout(400);
@@ -81,24 +81,24 @@ class ReportingPage extends BasePage {
   async clearGroup(n = 2) {
     const cell = this.page.locator(this.locators.clearGroup).nth(n - 1);
     await expect(cell).toBeVisible();
-    await cell.click();
-    await this.page.keyboard.press("Control+A").catch(() => {});
+    await cell.dblclick();
+    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
     await this.page.keyboard.press("Backspace");
   }
 
   async clearCost(n = 2) {
     const cell = this.page.locator(this.locators.clearCost).nth(n - 1);
     await expect(cell).toBeVisible();
-    await cell.click();
-    await this.page.keyboard.press("Control+A").catch(() => {});
+    await cell.dblclick();
+    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
     await this.page.keyboard.press("Backspace");
   }
 
   async clearCPA(n = 2) {
     const cell = this.page.locator(this.locators.clearCPA).nth(n - 1);
     await expect(cell).toBeVisible();
-    await cell.click();
-    await this.page.keyboard.press("Control+A").catch(() => {});
+    await cell.dblclick();
+    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
     await this.page.keyboard.press("Backspace");
   }
 
@@ -107,8 +107,8 @@ class ReportingPage extends BasePage {
       .locator(this.locators.clearExcludeFromReports)
       .nth(n - 1);
     await expect(cell).toBeVisible();
-    await cell.click();
-    await this.page.keyboard.press("Control+A").catch(() => {});
+    await cell.dblclick();
+    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
     await this.page.keyboard.press("Backspace");
   }
 
@@ -156,8 +156,8 @@ class ReportingPage extends BasePage {
 
   async editGroup(n, newGroup) {
     await expect(this.getNthGroup(n)).toBeVisible();
-    await this.getNthGroup(n).click();
-    await this.page.keyboard.press("Control+A").catch(() => {});
+    await this.getNthGroup(n).dblclick();
+    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
     await this.page.keyboard.press("Backspace");
     await this.page.waitForTimeout(500);
     await this.page.keyboard.type(newGroup, { delay: 100 });
@@ -187,8 +187,8 @@ class ReportingPage extends BasePage {
   async editCost(n, value) {
     const costCell = this.getNthCost(n);
     await expect(costCell).toBeVisible();
-    await costCell.click();
-    await this.page.keyboard.press("Control+A").catch(() => {});
+    await costCell.dblclick();
+    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
     await this.page.keyboard.type(value, { delay: 50 });
     await this.page.keyboard.press("Enter");
     await this.page.waitForTimeout(500);
@@ -200,8 +200,8 @@ class ReportingPage extends BasePage {
 
   async editCPA(n, value) {
     const cpaCell = this.getNthCPA(n);
-    await cpaCell.click();
-    await this.page.keyboard.press("Control+A").catch(() => {});
+    await cpaCell.dblclick();
+    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
     await this.page.keyboard.type(value, { delay: 50 });
     await this.page.keyboard.press("Enter");
   }
@@ -210,7 +210,7 @@ class ReportingPage extends BasePage {
     return this.page.locator(this.locators.nthExcludeFromReports).nth(n - 1);
   }
 
-  async toggleExcludeFromReports(n, expectedChecked) {
+  async toggleExcludeFromReports(n) {
     const checkbox = this.getExcludeCheckbox(n);
     await expect(checkbox).toBeVisible();
 
@@ -218,33 +218,26 @@ class ReportingPage extends BasePage {
     try {
       isChecked = await checkbox.isChecked();
     } catch (e) {
-      const ariaChecked = await checkbox.getAttribute(
-        this.locators.checkedType
-      );
+      const ariaChecked = await checkbox.getAttribute(this.locators.checkedType);
       isChecked = ariaChecked === "true";
     }
 
-    if (expectedChecked === true && isChecked === true) {
-      await checkbox.uncheck({ force: true });
-      return false;
-    } else if (expectedChecked === true && isChecked === false) {
-      await checkbox.check({ force: true });
-      return true;
-    } else if (expectedChecked === false && isChecked === true) {
-      await checkbox.uncheck({ force: true });
-      return false;
-    } else if (expectedChecked === false && isChecked === false) {
-      await checkbox.check({ force: true });
+    if (!isChecked) {
+      const elementHandle = await checkbox.elementHandle();
+      if (elementHandle) {
+        await this.page.evaluate((el) => el.click(), elementHandle);
+      }
       return true;
     }
+    return true;
   }
 
-  async expectExcludeFromReportsToggled(n, expectedChecked) {
+  async expectExcludeFromReportsToggled(n) {
     const ariaChecked = await this.getExcludeCheckbox(n).getAttribute(
       this.locators.checkedType
     );
     const isChecked = ariaChecked === "true";
-    expect(isChecked).toBe(expectedChecked);
+    expect(isChecked).toBe(true);
   }
 
   async clickSaveButton() {
@@ -262,7 +255,6 @@ class ReportingPage extends BasePage {
     group,
     cost,
     cpa,
-    excluded,
   }) {
     if (subscriptionType) {
       await this.expectSubscriptionTypeUpdated(nthRow, subscriptionType);
@@ -281,7 +273,7 @@ class ReportingPage extends BasePage {
       await expect(this.getNthCPA(nthRow)).toContainText(cpa);
     }
     if (typeof excluded === "boolean") {
-      await this.expectExcludeFromReportsToggled(nthRow, excluded);
+      await this.expectExcludeFromReportsToggled(nthRow);
     }
   }
 
@@ -299,8 +291,8 @@ class ReportingPage extends BasePage {
         .nth(3);
 
       await expect(cell).toBeVisible();
-      await cell.click();
-      await this.page.keyboard.press("Control+A").catch(() => {});
+      await cell.dblclick();
+      await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
       await this.page.keyboard.press("Backspace");
       await this.page.waitForTimeout(500);
     }

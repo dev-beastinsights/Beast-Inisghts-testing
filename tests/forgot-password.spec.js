@@ -83,13 +83,15 @@ test.describe("Forgot Password", () => {
         newPassword,
         newPassword
       );
+      console.log("newPassword is: ", newPassword);
       await allPages.resetPasswordPage.expectSuccessToastPasswordReset();
     });
 
     await test.step("Login with updated password", async () => {
       await allPages.loginPage.expectSignInModal();
+      console.log("newPassword is: ", newPassword);
       await allPages.loginPage.loginToBeastInsights(
-        process.env.USERNAME1 ? process.env.USERNAME1 : 'Dhruvi1',
+        process.env.USERNAME1 || 'Dhruvi 01',
         newPassword
       );
       await allPages.dashboardPage.skipOnboardingTour();

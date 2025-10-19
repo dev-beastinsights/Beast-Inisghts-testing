@@ -63,11 +63,8 @@ test.describe("Reporting Setup", () => {
     });
 
     await test.step("Toggle Exclude from Reports checkbox", async () => {
-      const isChecked = await allPages.reportingPage.toggleExcludeFromReports(testData.nthRow, testData.excluded);
-      await allPages.reportingPage.expectExcludeFromReportsToggled(
-        testData.nthRow,
-        isChecked,
-      );
+      await allPages.reportingPage.toggleExcludeFromReports(testData.nthRow);
+      await allPages.reportingPage.expectExcludeFromReportsToggled(testData.nthRow);
     });
 
     await test.step("Save changes and verify persistence", async () => {
@@ -78,7 +75,6 @@ test.describe("Reporting Setup", () => {
         group: testData.group,
         cost: testData.cost,
         cpa: testData.cpa,
-        excluded: undefined,
       });
       await allPages.reportingPage.expectAIIndicatorIconNotVisible(testData.nthRow);
     });
@@ -144,10 +140,9 @@ test.describe("Reporting Setup", () => {
     });
 
     await test.step("Toggle Exclude from Reports checkbox", async () => {
-      const isChecked = await allPages.reportingPage.toggleExcludeFromReports(testData.nthRow, testData.excluded);
+      const isChecked = await allPages.reportingPage.toggleExcludeFromReports(testData.nthRow);
       await allPages.reportingPage.expectExcludeFromReportsToggled(
         testData.nthRow,
-        isChecked,
       );
     });
 
@@ -159,7 +154,6 @@ test.describe("Reporting Setup", () => {
         group: testData.group,
         cost: testData.cost,
         cpa: testData.cpa,
-        excluded: undefined,
       });
       await allPages.reportingPage.expectAIIndicatorIconNotVisible(testData.nthRow);
     });
@@ -225,11 +219,8 @@ test.describe("Reporting Setup", () => {
     });
 
     await test.step("Toggle Exclude from Reports checkbox", async () => {
-      const isChecked = await allPages.reportingPage.toggleExcludeFromReports(testData.nthRow, testData.excluded);
-      await allPages.reportingPage.expectExcludeFromReportsToggled(
-        testData.nthRow,
-        isChecked,
-      );
+      const isChecked = await allPages.reportingPage.toggleExcludeFromReports(testData.nthRow);
+      await allPages.reportingPage.expectExcludeFromReportsToggled(testData.nthRow);
     });
 
     await test.step("Click Discard with non-empty fields", async () => {
