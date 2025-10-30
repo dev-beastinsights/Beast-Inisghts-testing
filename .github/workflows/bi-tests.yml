@@ -50,5 +50,6 @@ jobs:
           path: playwright-report/
 
       - name: TestDino Reporter
+        if: always()
         run:
           npx --yes tdpw ./playwright-report --token="trx_production_2082201811e79fb2c0a596c5060d741f13d9504ccc14caf26ef846452851680d" --upload-html
