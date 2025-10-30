@@ -3,6 +3,8 @@ name: Execute BI Tests
 on:
   push:
   workflow_dispatch:
+  schedule:
+    - cron: '30 4 * * *'  # Runs daily at 10:00 AM IST
 
 jobs:
   execute-bi-tests:
@@ -31,19 +33,6 @@ jobs:
           npm install
           npx playwright install chromium
 
-      - name: Verify environment variables
-        env:
-          USERNAME: ${{ secrets.USERNAME }}
-          USERNAME1: ${{ secrets.USERNAME1 }}
-          PASSWORD: ${{ secrets.PASSWORD }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: |
-          echo "Checking if environment variables are set..."
-          if [ -z "$USERNAME" ]; then echo "USERNAME is not set"; else echo "USERNAME is set"; fi
-          if [ -z "$PASSWORD" ]; then echo "PASSWORD is not set"; else echo "PASSWORD is set"; fi
-          if [ -z "$USERNAME1" ]; then echo "USERNAME1 is not set"; else echo "USERNAME1 is set"; fi
-          if [ -z "$GMAIL_APP_PASSWORD" ]; then echo "GMAIL_APP_PASSWORD is not set"; else echo "GMAIL_APP_PASSWORD is set"; fi
-
       - name: Playwright Tests
         env:
           USERNAME: ${{ secrets.USERNAME }}
@@ -59,3 +48,7 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report/
+
+      - name: TestDino Reporter
+        run:
+          npx --yes tdpw ./playwright-report --token="trx_production_2082201811e79fb2c0a596c5060d741f13d9504ccc14caf26ef846452851680d" --upload-html
