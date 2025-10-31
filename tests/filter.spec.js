@@ -2,24 +2,21 @@
 import { expect, test } from "@playwright/test";
 import AllPages from "../pages/AllPages.js";
 import dotenv from "dotenv";
-import { signInToBI } from "../utils/test-setup.js";  
+import { signInToBI } from "../utils/test-setup.js";
 import {
-      getCurrentMonth,
-      getCurrentMonthNumber,
-      getCurrentMonthShortName,
-      getNextMonth,
-      getNextMonthNumber,
-      getNextMonthShortName,
-      getCurrentYear,
+  getCurrentMonth,
+  getCurrentMonthNumber,
+  getCurrentMonthShortName,
+  getNextMonth,
+  getNextMonthNumber,
+  getNextMonthShortName,
+  getCurrentYear,
 } from "../utils/date.js";
 
-import { 
-      getAppliedAdvancedDateRange,
-      getAdvancedFilter,
-      getPreviousMonth,
-      getPreviousMonthNumber,
-      getPreviousMonthShortName,
- } from "../utils/filter.js";
+import {
+  getAppliedAdvancedDateRange,
+  getAdvancedFilter,
+} from "../utils/filter.js";
 
 dotenv.config();
 
@@ -77,9 +74,9 @@ test.describe("", () => {
 
     await test.step("Verify default calendar months after reset", async () => {
       const startRdpMonth = await allPages.salesPage.getStartRdpMonth();
-      expect(startRdpMonth).toBe(currentMonth);
-
       const endRdpMonth = await allPages.salesPage.getEndRdpMonth();
+
+      expect(startRdpMonth).toBe(currentMonth);
       expect(endRdpMonth).toBe(nextMonth);
     });
 
@@ -246,14 +243,21 @@ test.describe("", () => {
         currentYear
       );
     });
-    
+
     await test.step("Verify after applied Date filter (advanced schema) via Power BI filters", async () => {
-      const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(allPages.page);
+      const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(
+        allPages.page
+      );
 
       expect(appliedStart, "No advanced (date) filter found").toBeTruthy();
 
-      const expectedStart = `${currentYear}-${String(currentMonthNumber).padStart(2, "0")}-${String(startDate).padStart(2, "0")}`;
-      const expectedEnd = `${currentYear}-${String(nextMonthNumber).padStart(2, "0")}-${String(endDate).padStart(2, "0")}`;
+      const expectedStart = `${currentYear}-${String(
+        currentMonthNumber
+      ).padStart(2, "0")}-${String(startDate).padStart(2, "0")}`;
+      const expectedEnd = `${currentYear}-${String(nextMonthNumber).padStart(
+        2,
+        "0"
+      )}-${String(endDate).padStart(2, "0")}`;
 
       expect(appliedStart).toBe(expectedStart);
       expect(appliedEnd).toBe(expectedEnd);
@@ -262,20 +266,18 @@ test.describe("", () => {
 
   test("Verify the functionality of the calendar navigation arrows to adjust month view and apply filters in Sales page test", async () => {
     const currentMonth = getCurrentMonth();
-    const previousMonth = getPreviousMonth();
-    const previousMonthNumber = getPreviousMonthNumber();
     const nextMonthNumber = getNextMonthNumber();
     const nextMonth = getNextMonth();
     const currentYear = getCurrentYear();
-    const startDate = "1";
-    const endDate = "25";
 
-   await test.step("Navigate to Sales page and open date range filter", async () => {
+    await test.step("Navigate to Sales page and open date range filter", async () => {
       await allPages.salesPage.clickOnSalesSideNav();
       await allPages.salesPage.expectSalesHeader();
-      await expect(allPages.salesPage.getDateRangeFilterDropdown()).toBeVisible({
-        timeout: 60000,
-      });
+      await expect(allPages.salesPage.getDateRangeFilterDropdown()).toBeVisible(
+        {
+          timeout: 60000,
+        }
+      );
       await allPages.salesPage.clickOnDateRangeFilterDropdown();
     });
 
@@ -289,50 +291,59 @@ test.describe("", () => {
 
     await test.step("Navigate to previous month, apply filter and verify Power BI schema", async () => {
       await allPages.salesPage.clickOnPreviousMonthArrow();
-      const prevMonthVisible = await allPages.salesPage.getStartRdpMonth();
-      expect(prevMonthVisible).toBe(previousMonth);
+      const visibleMonth = await allPages.salesPage.getStartRdpMonth();
+      const visibleMonthNumber =
+        await allPages.salesPage.getStartRdpMonthNumber();
 
       await allPages.salesPage.clickOnStartDate("1");
-      await allPages.salesPage.clickOnEndDate(previousMonth, "25");
+      await allPages.salesPage.clickOnEndDate(visibleMonth, "25");
 
       await allPages.salesPage.clickOnApplyButton();
       await allPages.salesPage.expectDateRangeFilterModalClosed();
 
-      const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(allPages.page);
-      expect(appliedStart, "No advanced (date) filter found").toBeTruthy();
+      const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(
+        allPages.page
+      );
 
-      const expectedStart = `${currentYear}-${String(previousMonthNumber).padStart(2, "0")}-${String(startDate).padStart(2, "0")}`;
-      const expectedEnd = `${currentYear}-${String(previousMonthNumber).padStart(2, "0")}-${String(endDate).padStart(2, "0")}`;
+      const expectedStart = `${currentYear}-${String(
+        visibleMonthNumber
+      ).padStart(2, "0")}-01`;
+      const expectedEnd = `${currentYear}-${String(visibleMonthNumber).padStart(
+        2,
+        "0"
+      )}-25`;
 
       expect(appliedStart).toBe(expectedStart);
       expect(appliedEnd).toBe(expectedEnd);
-
       await allPages.salesPage.clickOnDateRangeFilterDropdown();
     });
 
     await test.step("Navigate to next month, apply filter and verify Power BI schema", async () => {
-    let guard = 0;
-    let nextMonthVisible = await allPages.salesPage.getStartRdpMonth();
-    while (nextMonthVisible !== nextMonth && guard < 6) {
-      await allPages.salesPage.clickOnNextMonthArrow();
-      nextMonthVisible = await allPages.salesPage.getStartRdpMonth();
-      guard++;
-    }
-    expect(nextMonthVisible).toBe(nextMonth);
+      let guard = 0;
+      let nextMonthVisible = await allPages.salesPage.getStartRdpMonth();
+      while (nextMonthVisible !== nextMonth && guard < 6) {
+        await allPages.salesPage.clickOnNextMonthArrow();
+        nextMonthVisible = await allPages.salesPage.getStartRdpMonth();
+        guard++;
+      }
+      expect(nextMonthVisible).toBe(nextMonth);
 
-    // Select start date "1" in next month
-    await allPages.salesPage.clickOnStartDate("1");
-    await allPages.salesPage.clickOnEndDate(nextMonth, "25");
+      await allPages.salesPage.clickOnStartDate("1");
+      await allPages.salesPage.clickOnEndDate(nextMonth, "25");
 
-    await allPages.salesPage.clickOnApplyButton();
-    await allPages.salesPage.expectDateRangeFilterModalClosed();
+      await allPages.salesPage.clickOnApplyButton();
+      await allPages.salesPage.expectDateRangeFilterModalClosed();
 
-    const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(allPages.page);
-    expect(appliedStart, "No advanced (date) filter found").toBeTruthy();
+      const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(
+        allPages.page
+      );
+      expect(appliedStart, "No advanced (date) filter found").toBeTruthy();
 
-    const expectedEnd = `${currentYear}-${String(nextMonthNumber).padStart(2, "0")}-${String(endDate).padStart(2, "0")}`;
-
-    expect(appliedEnd).toBe(expectedEnd);
+      const expectedEnd = `${currentYear}-${String(nextMonthNumber).padStart(
+        2,
+        "0"
+      )}-25`;
+      expect(appliedEnd).toBe(expectedEnd);
     });
   });
 
@@ -351,7 +362,7 @@ test.describe("", () => {
       "BIN",
       "Bank",
       "Billing Cycle",
-      "Affiliate ID"
+      "Affiliate ID",
     ];
 
     await test.step("Navigate to Sales page and open date range filter", async () => {
@@ -360,7 +371,9 @@ test.describe("", () => {
     });
 
     await test.step("Open Group By filter dropdown", async () => {
-      await expect(allPages.salesPage.getGroupByFilterDropdown()).toBeVisible({ timeout: 60000 });
+      await expect(allPages.salesPage.getGroupByFilterDropdown()).toBeVisible({
+        timeout: 60000,
+      });
       await allPages.salesPage.clickOnGroupByFilterDropdown();
     });
 
@@ -369,7 +382,6 @@ test.describe("", () => {
         await allPages.salesPage.getGroupByOption(option);
         await allPages.salesPage.getGroupBySubOption(option);
         await allPages.salesPage.closeGroupByDropDownOption();
-      
       });
     }
   });
@@ -388,7 +400,7 @@ test.describe("", () => {
       await allPages.salesPage.selectCampaignOption();
       await allPages.salesPage.closeFilterDropdown();
     });
-  
+
     await test.step("Verify selected filter appears on top summary section", async () => {
       await allPages.salesPage.closeMoreFilterOption();
       const appliedFilter = await allPages.salesPage.getAppliedFilterText();

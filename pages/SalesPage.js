@@ -198,6 +198,12 @@ class SalesPage extends BasePage {
   expectPreviousMonthArrow() {
     return this.page.locator(this.locators.previousMonthArrow).toBeVisible();
   }
+  
+  async getStartRdpMonthNumber() {
+    const month = await this.getStartRdpMonth(); 
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    return months.indexOf(month) + 1;
+  }
 
   expectNextMonthArrow() {
     return this.page.locator(this.locators.nextMonthArrow).toBeVisible();

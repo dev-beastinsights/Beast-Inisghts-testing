@@ -67,7 +67,9 @@ class ReportingPage extends BasePage {
       let currentValue = (await cell.textContent())?.replace(/▼/g, "").trim();
       if (currentValue && currentValue !== "") {
         await cell.dblclick();
-        await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+        await this.page.keyboard.press(
+          process.platform === "darwin" ? "Meta+A" : "Control+A"
+        );
         await this.page.keyboard.press("Backspace");
         await this.page.keyboard.press("Enter");
         await this.page.waitForTimeout(400);
@@ -82,7 +84,9 @@ class ReportingPage extends BasePage {
     const cell = this.page.locator(this.locators.clearGroup).nth(n - 1);
     await expect(cell).toBeVisible();
     await cell.dblclick();
-    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+    await this.page.keyboard.press(
+      process.platform === "darwin" ? "Meta+A" : "Control+A"
+    );
     await this.page.keyboard.press("Backspace");
   }
 
@@ -90,7 +94,9 @@ class ReportingPage extends BasePage {
     const cell = this.page.locator(this.locators.clearCost).nth(n - 1);
     await expect(cell).toBeVisible();
     await cell.dblclick();
-    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+    await this.page.keyboard.press(
+      process.platform === "darwin" ? "Meta+A" : "Control+A"
+    );
     await this.page.keyboard.press("Backspace");
   }
 
@@ -98,7 +104,9 @@ class ReportingPage extends BasePage {
     const cell = this.page.locator(this.locators.clearCPA).nth(n - 1);
     await expect(cell).toBeVisible();
     await cell.dblclick();
-    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+    await this.page.keyboard.press(
+      process.platform === "darwin" ? "Meta+A" : "Control+A"
+    );
     await this.page.keyboard.press("Backspace");
   }
 
@@ -108,7 +116,9 @@ class ReportingPage extends BasePage {
       .nth(n - 1);
     await expect(cell).toBeVisible();
     await cell.dblclick();
-    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+    await this.page.keyboard.press(
+      process.platform === "darwin" ? "Meta+A" : "Control+A"
+    );
     await this.page.keyboard.press("Backspace");
   }
 
@@ -157,7 +167,9 @@ class ReportingPage extends BasePage {
   async editGroup(n, newGroup) {
     await expect(this.getNthGroup(n)).toBeVisible();
     await this.getNthGroup(n).dblclick();
-    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+    await this.page.keyboard.press(
+      process.platform === "darwin" ? "Meta+A" : "Control+A"
+    );
     await this.page.keyboard.press("Backspace");
     await this.page.waitForTimeout(500);
     await this.page.keyboard.type(newGroup, { delay: 100 });
@@ -188,7 +200,9 @@ class ReportingPage extends BasePage {
     const costCell = this.getNthCost(n);
     await expect(costCell).toBeVisible();
     await costCell.dblclick();
-    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+    await this.page.keyboard.press(
+      process.platform === "darwin" ? "Meta+A" : "Control+A"
+    );
     await this.page.keyboard.type(value, { delay: 50 });
     await this.page.keyboard.press("Enter");
     await this.page.waitForTimeout(500);
@@ -201,7 +215,9 @@ class ReportingPage extends BasePage {
   async editCPA(n, value) {
     const cpaCell = this.getNthCPA(n);
     await cpaCell.dblclick();
-    await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+    await this.page.keyboard.press(
+      process.platform === "darwin" ? "Meta+A" : "Control+A"
+    );
     await this.page.keyboard.type(value, { delay: 50 });
     await this.page.keyboard.press("Enter");
   }
@@ -218,7 +234,9 @@ class ReportingPage extends BasePage {
     try {
       isChecked = await checkbox.isChecked();
     } catch (e) {
-      const ariaChecked = await checkbox.getAttribute(this.locators.checkedType);
+      const ariaChecked = await checkbox.getAttribute(
+        this.locators.checkedType
+      );
       isChecked = ariaChecked === "true";
     }
 
@@ -292,7 +310,9 @@ class ReportingPage extends BasePage {
 
       await expect(cell).toBeVisible();
       await cell.dblclick();
-      await this.page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+      await this.page.keyboard.press(
+        process.platform === "darwin" ? "Meta+A" : "Control+A"
+      );
       await this.page.keyboard.press("Backspace");
       await this.page.waitForTimeout(500);
     }
