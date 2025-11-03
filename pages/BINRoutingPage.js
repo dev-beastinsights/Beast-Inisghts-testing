@@ -21,10 +21,10 @@ class BINRoutingPage extends BasePage {
     binRoutingSideNav: '[data-test-id="nav-item-bin routing"]',
     csvExportButton: '[data-testid="export-csv-button"]',
     jsonExportButton: '[data-testid="export-json-button"]',
-    bankName: `button span.truncate`,
+    bankName: `((//h3/following-sibling::p)[1]//span)[2]`,
     approvalLift: `//div[text()="Approval Lift"]/following-sibling::div`,
     revenueImpact: `//div[text()="Revenue Impact"]/following-sibling::div`,
-    bankRoutingInsightsHeader: `Bank Routing Insights`,
+    bankRoutingInsightsHeader: `BIN Routing Insights`,
     csvExport: "export-csv-button",
     jsonExport: "export-json-button",
     exportOrSection: "Export/Share",
@@ -88,24 +88,24 @@ class BINRoutingPage extends BasePage {
   }
 
   async getBankName() {
-    await expect(this.page.locator(this.locators.bankName)).toBeVisible({
+    await expect(this.page.locator(this.locators.bankName).first()).toBeVisible({
       timeout: 60000,
     });
-    return await this.page.locator(this.locators.bankName).textContent();
+    return await this.page.locator(this.locators.bankName).first().textContent();
   }
 
   async getApprovalLift() {
-    await expect(this.page.locator(this.locators.approvalLift)).toBeVisible({
+    await expect(this.page.locator(this.locators.approvalLift).first()).toBeVisible({
       timeout: 60000,
     });
-    return await this.page.locator(this.locators.approvalLift).textContent();
+    return await this.page.locator(this.locators.approvalLift).first().textContent();
   }
 
   async getRevenueImpact() {
-    await expect(this.page.locator(this.locators.revenueImpact)).toBeVisible({
+    await expect(this.page.locator(this.locators.revenueImpact).first()).toBeVisible({
       timeout: 60000,
     });
-    return await this.page.locator(this.locators.revenueImpact).textContent();
+    return await this.page.locator(this.locators.revenueImpact).first().textContent();
   }
 
   async verifyCSVContainsUIData(csvFilePath, expectedValues) {
