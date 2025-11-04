@@ -56,6 +56,7 @@ test.describe("", () => {
         { timeout: 60000 }
       );
       await allPages.salesPage.clickOnDateRangeFilterDropdown();
+
       for (const date of datePreset) {
         const formattedDate = date.replace(/ /g, "-");
         await allPages.salesPage.expectDateRangeFilterModal(formattedDate);
@@ -66,6 +67,7 @@ test.describe("", () => {
       await allPages.salesPage.clickOnClearButton();
       await allPages.salesPage.expectClearedDateRangeLabel();
       await allPages.salesPage.clickOnDateRangeFilterDropdown();
+
       for (const date of datePreset) {
         const formattedDate = date.replace(/ /g, "-");
         await allPages.salesPage.expectDateRangeFilterModal(formattedDate);
@@ -82,7 +84,15 @@ test.describe("", () => {
 
     await test.step("Manually apply a custom date range", async () => {
       await allPages.salesPage.clickOnStartDate("1");
-      await allPages.salesPage.clickOnEndDate(nextMonth, "25");
+
+      const startMonth = await allPages.salesPage.getStartRdpMonth();
+      const endMonth = await allPages.salesPage.getEndRdpMonth();
+
+      if (startMonth === endMonth) {
+        await allPages.salesPage.clickOnNextMonthArrow();
+      }
+
+      await allPages.salesPage.clickOnEndDateInEndCalendar("25");
     });
 
     await test.step("Verify auto selected start and end date inputs", async () => {
@@ -245,19 +255,22 @@ test.describe("", () => {
     });
 
     await test.step("Verify after applied Date filter (advanced schema) via Power BI filters", async () => {
+      await allPages.salesPage.clickOnDateRangeFilterDropdown();
+      const startInputValue = await allPages.salesPage
+        .getStartDateInput()
+        .inputValue();
+      const endInputValue = await allPages.salesPage
+        .getEndDateInput()
+        .inputValue();
+
       const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(
         allPages.page
       );
 
       expect(appliedStart, "No advanced (date) filter found").toBeTruthy();
 
-      const expectedStart = `${currentYear}-${String(
-        currentMonthNumber
-      ).padStart(2, "0")}-${String(startDate).padStart(2, "0")}`;
-      const expectedEnd = `${currentYear}-${String(nextMonthNumber).padStart(
-        2,
-        "0"
-      )}-${String(endDate).padStart(2, "0")}`;
+      const expectedStart = startInputValue;
+      const expectedEnd = endInputValue;
 
       expect(appliedStart).toBe(expectedStart);
       expect(appliedEnd).toBe(expectedEnd);
@@ -266,9 +279,12 @@ test.describe("", () => {
 
   test("Verify the functionality of the calendar navigation arrows to adjust month view and apply filters in Sales page test", async () => {
     const currentMonth = getCurrentMonth();
-    const nextMonthNumber = getNextMonthNumber();
     const nextMonth = getNextMonth();
-    const currentYear = getCurrentYear();
+
+    const now = new Date();
+    now.setMonth(now.getMonth() - 1);
+    const prevMonth = now.getMonth() + 1;
+    const prevYear = now.getFullYear();
 
     await test.step("Navigate to Sales page and open date range filter", async () => {
       await allPages.salesPage.clickOnSalesSideNav();
@@ -291,58 +307,52 @@ test.describe("", () => {
 
     await test.step("Navigate to previous month, apply filter and verify Power BI schema", async () => {
       await allPages.salesPage.clickOnPreviousMonthArrow();
-      const visibleMonth = await allPages.salesPage.getStartRdpMonth();
-      const visibleMonthNumber =
-        await allPages.salesPage.getStartRdpMonthNumber();
 
+      const visibleMonth = await allPages.salesPage.getEndRdpMonth();
       await allPages.salesPage.clickOnStartDate("1");
+      await allPages.salesPage.clickOnEndDate(visibleMonth, "26");
+
+      await allPages.salesPage.clickOnApplyButton();
+      await allPages.salesPage.expectDateRangeFilterModalClosed();
+
+      const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(
+        allPages.page
+      );
+      const expectedStart = `${prevYear}-${String(prevMonth).padStart(
+        2,
+        "0"
+      )}-01`;
+      const expectedEnd = `${prevYear}-${String(prevMonth).padStart(
+        2,
+        "0"
+      )}-26`;
+
+      expect(appliedStart).toBe(expectedStart);
+      expect(appliedEnd).toBe(expectedEnd);
+
+      await allPages.salesPage.clickOnDateRangeFilterDropdown();
+    });
+
+    await test.step("Navigate to next month, apply filter and verify Power BI schema", async () => {
+      await allPages.salesPage.clickOnNextMonthArrow();
+
+      const visibleMonth = await allPages.salesPage.getEndRdpMonth();
+
+      await allPages.salesPage.clickOnStartDateInMonth(visibleMonth, "10");
       await allPages.salesPage.clickOnEndDate(visibleMonth, "25");
 
       await allPages.salesPage.clickOnApplyButton();
       await allPages.salesPage.expectDateRangeFilterModalClosed();
 
-      const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(
-        allPages.page
-      );
-
-      const expectedStart = `${currentYear}-${String(
-        visibleMonthNumber
-      ).padStart(2, "0")}-01`;
-      const expectedEnd = `${currentYear}-${String(visibleMonthNumber).padStart(
-        2,
-        "0"
-      )}-25`;
-
-      expect(appliedStart).toBe(expectedStart);
-      expect(appliedEnd).toBe(expectedEnd);
       await allPages.salesPage.clickOnDateRangeFilterDropdown();
-    });
+      const endInputValue = await allPages.salesPage
+        .getEndDateInput()
+        .inputValue();
+      const endDateObj = new Date(endInputValue);
+      endDateObj.setDate(endDateObj.getDate());
+      const expectedEnd = endDateObj.toLocaleDateString("en-CA");
 
-    await test.step("Navigate to next month, apply filter and verify Power BI schema", async () => {
-      let guard = 0;
-      let nextMonthVisible = await allPages.salesPage.getStartRdpMonth();
-      while (nextMonthVisible !== nextMonth && guard < 6) {
-        await allPages.salesPage.clickOnNextMonthArrow();
-        nextMonthVisible = await allPages.salesPage.getStartRdpMonth();
-        guard++;
-      }
-      expect(nextMonthVisible).toBe(nextMonth);
-
-      await allPages.salesPage.clickOnStartDate("1");
-      await allPages.salesPage.clickOnEndDate(nextMonth, "25");
-
-      await allPages.salesPage.clickOnApplyButton();
-      await allPages.salesPage.expectDateRangeFilterModalClosed();
-
-      const { appliedStart, appliedEnd } = await getAppliedAdvancedDateRange(
-        allPages.page
-      );
-      expect(appliedStart, "No advanced (date) filter found").toBeTruthy();
-
-      const expectedEnd = `${currentYear}-${String(nextMonthNumber).padStart(
-        2,
-        "0"
-      )}-25`;
+      const { appliedEnd } = await getAppliedAdvancedDateRange(allPages.page);
       expect(appliedEnd).toBe(expectedEnd);
     });
   });

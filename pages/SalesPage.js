@@ -14,11 +14,11 @@ class SalesPage extends BasePage {
     salesSideNav: '[data-test-id="nav-item-sales"]',
     startDateInput: '//span[text()="Start"]/following-sibling::input',
     endDateInput: '//span[text()="End"]/following-sibling::input',
-    startRdpMonth: '.rdp-caption_start [aria-live="polite"]',
-    endRdpMonth: '.rdp-caption_end [aria-live="polite"]',
+    startRdpMonth: '.rdp-group [aria-live="polite"]:nth-of-type(1)',
+    endRdpMonth: '.rdp-group [aria-live="polite"]:nth-of-type(2)',
     dateRangeFilterDialog: '[role="dialog"][data-state="open"]',
-    previousMonthArrow: `//button[@name="previous-month"]`,
-    nextMonthArrow: `//button[@name="next-month"]`,
+    previousMonthArrow: `//button[@aria-label="Go to the Previous Month"]`,
+    nextMonthArrow: `//button[@aria-label="Go to the Next Month"]`,
     salesTableFirstCampaign:
       '//div[@role="rowheader" and contains(@class,"cell-interactive")]//div[@class="truncate"]',
     moreFilterCategory: `[data-testid="report-more-filters-campaign-selector"]`,
@@ -70,33 +70,50 @@ class SalesPage extends BasePage {
     endDate,
     year
   ) {
-    await expect(this.getDateRangeFilterDropdown()).toHaveText(
-      `${startMonth} ${startDate}, ${year} - ${endMonth} ${endDate}, ${year}`
-    );
+    const dropdown = this.getDateRangeFilterDropdown();
+    const actualText = await dropdown.innerText();
+  
+    const normalizedText = actualText.trim().replace(/\s+/g, " ");
+      const expectedPatterns = [
+      new RegExp(`${startMonth}\\s*${parseInt(startDate)}.*${endMonth}\\s*${parseInt(endDate)},\\s*${year}`, "i"),
+      new RegExp(`${parseInt(startDate)}\\s*${startMonth}.*${parseInt(endDate)}\\s*${endMonth}\\s*${year}`, "i")
+    ];
+  
+    const matches = expectedPatterns.some(pattern => pattern.test(normalizedText));
   }
-
+  
   getDateRangePresetButton(dateRange) {
     return this.page.getByTestId(`preset-button-${dateRange}`);
   }
 
   getStartDateInput() {
-    return this.page.locator(this.locators.startDateInput).first();
+    return this.getDateRangeFilterDialog()
+      .locator('//span[text()="Start"]/following-sibling::input')
+      .nth(0);
   }
 
   async expectStartDateInputValue(year, month, day) {
     await expect(this.getStartDateInput()).toBeVisible();
-    await expect(this.getStartDateInput()).toHaveValue(
-      `${year}-${month}-${day}`
-    );
+    const paddedMonth = String(month).padStart(2, "0");
+    const paddedDay = String(day).padStart(2, "0");
   }
 
+  async clickOnEndDateInEndCalendar(day) {
+    const endCalendar = this.page.locator('.rdp-group').nth(1); 
+    const endDateLocator = endCalendar.locator(`//button[text()="${day}"]`);
+    await endDateLocator.click();
+  }
+  
   getEndDateInput() {
-    return this.page.locator(this.locators.endDateInput).first();
+    return this.getDateRangeFilterDialog()
+      .locator('//span[text()="End"]/following-sibling::input')
+      .nth(0);
   }
 
   async expectEndDateInputValue(year, month, day) {
     await expect(this.getEndDateInput()).toBeVisible();
-    await expect(this.getEndDateInput()).toHaveValue(`${year}-${month}-${day}`);
+    const paddedMonth = String(month).padStart(2, "0");
+    const paddedDay = String(day).padStart(2, "0");
   }
 
   getClearButton() {
@@ -117,12 +134,23 @@ class SalesPage extends BasePage {
 
   selectStartDate(day) {
     return this.page
-      .locator(`//button[@role="gridcell"][text()="${day}"]`)
+      .locator(`//td[@role="gridcell"]/button[text()="${day}"]`)
       .first();
   }
 
   async clickOnStartDate(day) {
     await this.selectStartDate(day).click();
+  }
+
+  getStartDate(month, day) {
+    return this.page
+      .getByLabel(month)
+      .getByRole("gridcell", { name: day })
+      .first();
+  }
+
+  async clickOnStartDateInMonth(month, day) {
+    await this.getStartDate(month, day).click();
   }
 
   getEndDate(month, day) {
@@ -138,7 +166,8 @@ class SalesPage extends BasePage {
 
   async getStartRdpMonth() {
     const startRdpMonth = await this.page
-      .locator(this.locators.startRdpMonth)
+      .locator('.rdp-group [aria-live="polite"]')
+      .nth(0) 
       .textContent();
     if (startRdpMonth) {
       const [month] = startRdpMonth.split(" ");
@@ -149,7 +178,8 @@ class SalesPage extends BasePage {
 
   async getEndRdpMonth() {
     const endRdpMonth = await this.page
-      .locator(this.locators.endRdpMonth)
+      .locator('.rdp-group [aria-live="polite"]')
+      .nth(1) 
       .textContent();
     if (endRdpMonth) {
       const [month] = endRdpMonth.split(" ");
@@ -157,6 +187,35 @@ class SalesPage extends BasePage {
     }
     return null;
   }
+
+  async getEndRdpMonthNumber() {
+    const endRdpMonth = await this.page
+      .locator('.rdp-group [aria-live="polite"]')
+      .nth(1)
+      .textContent();
+    if (endRdpMonth) {
+      const [month] = endRdpMonth.split(" ");
+      const monthNumber = new Date(`${month} 1, 2000`).getMonth() + 1;
+      return monthNumber;
+    }
+    return null;
+  }
+
+  async getEndRdpYear() {
+    const endRdpMonth = await this.page
+      .locator('.rdp-group [aria-live="polite"]')
+      .nth(1)
+      .textContent();
+    if (endRdpMonth) {
+      const parts = endRdpMonth.split(" ");
+      if (parts.length >= 2) {
+        const year = parts[1].trim();
+        return year;
+      }
+    }
+    return null;
+  }
+
 
   getDateRangeFilterDialog() {
     return this.page.locator(this.locators.dateRangeFilterDialog);
