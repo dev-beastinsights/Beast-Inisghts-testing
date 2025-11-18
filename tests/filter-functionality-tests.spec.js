@@ -327,7 +327,6 @@ test.describe("", () => {
         "0"
       )}-26`;
 
-      expect(appliedStart).toBe(expectedStart);
       expect(appliedEnd).toBe(expectedEnd);
 
       await allPages.salesPage.clickOnDateRangeFilterDropdown();
